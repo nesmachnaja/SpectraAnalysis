@@ -1,0 +1,11 @@
+{
+  "connections": [
+    {
+      "name": "MEPhI_disser",
+      "parameters": {
+        "connectionString": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MEPhI_disser;Integrated Security=True;Connection Timeout=3600",
+        "providerName": "System.Data.SqlClient"
+      }
+    }
+  ]
+}

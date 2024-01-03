@@ -15,6 +15,7 @@ $(document).ready(function () {
 function sendFile(fileInput) {
     var formDataFile = new FormData();
     formDataFile.append("file", fileInput.files[0]);
+    formDataFile.append("spectraName", document.getElementById("spectraName").value);
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/Home/UploadFile");
