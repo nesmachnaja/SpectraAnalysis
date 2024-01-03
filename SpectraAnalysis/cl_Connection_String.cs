@@ -39,7 +39,8 @@ namespace SpectraAnalysis
             {
                 Console.WriteLine("Configuration file wasnt found.");
                 Console.ReadLine();
-                return;
+
+                throw;
             }
         }
     }

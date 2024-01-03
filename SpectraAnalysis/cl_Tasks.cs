@@ -108,6 +108,8 @@ namespace SpectraAnalysis
                 {
                     Console.WriteLine(exc.Message);
                     connection.Close();
+
+                    throw;
                 }
             },
             TaskCreationOptions.LongRunning);
@@ -157,6 +159,8 @@ namespace SpectraAnalysis
                 {
                     Console.WriteLine(exc.Message);
                     connection.Close();
+
+                    throw;
                 }
             },
             TaskCreationOptions.LongRunning);

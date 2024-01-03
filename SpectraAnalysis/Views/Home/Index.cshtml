@@ -7,16 +7,19 @@
 <div class="text-center">
     <h1 class="display-4">Welcome</h1>
     @*<button onclick="sendFile()">Upload spectra</button>*@
-    <form>
-        <label for="spectraFile">Upload spectra</label>
-        <input type="file" id="spectraFile" style="display: none;"/>
-    </form>
-    <button id="uploadFile">OK</button>
     
     @*<label for="file_input" class="common_button">Upload spectra</label>
     <input type="file" id="file_input" style="display: none;">*@
     <div id="spectraNameContainer" @*style="display: none;"*@>
         <label for="spectraName">Appoint the name of the spectra</label>
-        <input type="text" id="spectraName" />
+        <input type="text" id="spectraName" onmouseover="uploadAbilityControl(event)"/>
     </div>
+
+    <form style="margin-top: 0.7rem; display: inline-block;">
+        <label for="spectraFile" style="color: blue;"><u>Upload spectra</u></label>
+        <input type="file" id="spectraFile" style="display: none;"/>
+    </form>
+    <button id="uploadFile" style="display: inline-block;" disabled>OK</button>
+
+    <p id="responce" style="margin-top: 0.7rem;"></p>
 </div>
