@@ -21,9 +21,17 @@ body {
   margin-bottom: 60px;
 }
 
-.common_button {
-    /*box-shadow:*/ /*0 0 0 0.1rem white,*/ /*0 0 0 0.25rem gray;*/
-    background-color: lightblue;
+.textCenter {
+    text-align: center !important;
+    background-color: lavender;
     padding: 0.5rem;
-    /*padding-right: 0.5rem;*/
+}
+
+.stepResponces {
+    /*display: inline-block;*/
+}
+
+.inline {
+    display: inline-block;
+    width: 49%;
 }

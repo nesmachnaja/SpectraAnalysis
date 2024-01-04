@@ -14,6 +14,7 @@ namespace SpectraAnalysis.Controllers
     {
         HomeModel model = new HomeModel();
         cl_Tasks task;
+        Guid uid = Guid.Parse("2D008327-BDBB-4415-A0F2-10021792328E");
 
         public IActionResult Index()
         {
@@ -65,7 +66,7 @@ namespace SpectraAnalysis.Controllers
                                 raw_spectra.Columns.Add("column" + i.ToString(), typeof(decimal));
                             }
 
-                            Guid uid = Guid.NewGuid();
+                            uid = Guid.NewGuid();
 
                             DataRow row_los = list_of_spectrum.NewRow();
                             row_los[0] = DateTime.Now;
@@ -114,6 +115,20 @@ namespace SpectraAnalysis.Controllers
                 }
             }
             else return Json(new { message = "there is no file" });
+        }
+
+        [HttpPost]
+        public IActionResult SmoothingByWaveletHaar()
+        {
+            try
+            {
+                task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Smoothing_by_wavelet_haar @spectra_id = '" + uid + "', @num_of_iterations = " + Request.Form["numOfIterations"]);
+                return Json(new { message = "success" });
+            }
+            catch (Exception exc)
+            {
+                return Json(new { message = exc.Message.ToString() });
+            }
         }
 
     }

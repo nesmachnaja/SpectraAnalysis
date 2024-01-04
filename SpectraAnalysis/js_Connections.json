@@ -3,7 +3,7 @@
     {
       "name": "MEPhI_disser",
       "parameters": {
-        "connectionString": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MEPhI_disser;Integrated Security=True;Connection Timeout=3600",
+        "connectionString": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=MEPhI_disser;Integrated Security=True;User ID=tech;Password=7ujmvfr49ol.;Connection Timeout=3600",
         "providerName": "System.Data.SqlClient"
       }
     }

@@ -4,15 +4,12 @@
     ViewData["Title"] = "Home page";
 }
 
-<div class="text-center">
+<div class="textCenter">
     <h1 class="display-4">Welcome</h1>
-    @*<button onclick="sendFile()">Upload spectra</button>*@
     
-    @*<label for="file_input" class="common_button">Upload spectra</label>
-    <input type="file" id="file_input" style="display: none;">*@
     <div id="spectraNameContainer" @*style="display: none;"*@>
         <label for="spectraName">Appoint the name of the spectra</label>
-        <input type="text" id="spectraName" onmouseover="uploadAbilityControl(event)"/>
+        <input type="text" id="spectraName" onmouseout="uploadAbilityControl(event)"/>
     </div>
 
     <form style="margin-top: 0.7rem; display: inline-block;">
@@ -21,5 +18,18 @@
     </form>
     <button id="uploadFile" style="display: inline-block;" disabled>OK</button>
 
-    <p id="responce" style="margin-top: 0.7rem;"></p>
+    <p id="responce" style="margin-top: 0.7rem;" onchange="analysisVisibilityControl(event)"></p>
+
+</div>
+
+<div id="analysisWindow" style="display: block; padding: 0.5rem;">
+    <div class="inline">
+        <p>1. Smoothing by Wavelet Haar</p>
+        <label for="numOfIterations">Appoint number of iterations</label>
+        <input id="numOfIterations" type="text" onmouseout="smoothAbilityControl(event)"/>
+        <button id="smoothByWaveletHaar" disabled onclick="startWaveletSmoothing()">Start</button>
+    </div>
+    <div class="inline">
+        <p id="responceWaveletSmoothing" class="stepResponces"></p>
+    </div>
 </div>
