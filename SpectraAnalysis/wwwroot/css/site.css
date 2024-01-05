@@ -35,3 +35,7 @@ body {
     display: inline-block;
     width: 49%;
 }
+
+.analysisStep {
+    padding: 0.5rem;
+}

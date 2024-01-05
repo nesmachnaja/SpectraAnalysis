@@ -45,12 +45,12 @@ function uploadAbilityControl(event) {
     else okBtn.disabled = false;
 }
 
-function smoothAbilityControl(event) {
-    var numOfIterations = event.target;
-    var smoothBtn = document.getElementById("smoothByWaveletHaar");
-    if (numOfIterations.value == "")
-        smoothBtn.disabled = true;
-    else smoothBtn.disabled = false;
+function stepAbilityControl(event) {
+    var textfield = event.target;
+    var accordingBtn = textfield.parentElement.getElementsByClassName("startStep")[0];
+    if (textfield.value == "")
+        accordingBtn.disabled = true;
+    else accordingBtn.disabled = false;
 }
 
 function analysisVisibilityControl(event) {
@@ -76,8 +76,32 @@ function startWaveletSmoothing() {
             responceWaveletSmoothing.dispatchEvent(new Event("change"));
         }
         else {
-            responceWaveletSmoothing.innerHTML = "Uploading failed. Status: ", responceMsg.message;
+            responceWaveletSmoothing.innerHTML = "Status: ", responceMsg.message;
             responceWaveletSmoothing.dispatchEvent(new Event("change"));
+        }
+    };
+
+    xhr.send(formData);
+}
+
+function startBaselineCorrection() {
+    var responceIABaseline = document.getElementById("responceIABaseline");
+    var threshold = document.getElementById("threshold");
+    var formData = new FormData();
+    formData.append("threshold", threshold.value);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("POST", "/Home/BaselineCorrection");
+
+    xhr.onload = function () {
+        var responceMsg = JSON.parse(xhr.responseText);
+        if (xhr.status === 200) {
+            responceIABaseline.innerHTML = responceMsg.message;
+            responceIABaseline.dispatchEvent(new Event("change"));
+        }
+        else {
+            responceIABaseline.innerHTML = "Status: ", responceMsg.message;
+            responceIABaseline.dispatchEvent(new Event("change"));
         }
     };
 

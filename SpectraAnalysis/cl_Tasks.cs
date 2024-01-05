@@ -68,6 +68,60 @@ namespace SpectraAnalysis
             Execute_SQL_Query(query, result_field);
         }
 
+        public cl_Tasks()
+        {
+
+        }
+
+        public DataTable GetData(string query)
+        {
+            string _query = query;
+            DataTable dt = new DataTable();
+
+            pattern = @"\s\w+\.";
+            result = Regex.Match(_query, pattern);
+
+            database_name = result.ToString().Replace(" ", "").Replace(".", ""); //procedure_calling.Replace("exec ", "").Substring(0, procedure_calling.IndexOf(".") - 5);
+            cl_Connection_String connection_string = new cl_Connection_String(database_name);
+            SqlConnection connection = new SqlConnection(connection_string.connectionString);
+
+            Task task = new Task(() =>
+            {
+                try
+                {
+                    SqlCommand command = new SqlCommand(_query);
+                    connection.Open();
+                    command.Connection = connection;
+                    command.CommandTimeout = 600;
+                    
+                    using (var reader = command.ExecuteReader())
+                    {
+                        //while (reader.Read())
+                        //{
+                        dt.Load(reader);
+                        //}
+                    }
+
+                    connection.Close();
+
+                    Console.WriteLine("Ok");
+                    success = 1;
+                }
+                catch (SqlException exc)
+                {
+                    Console.WriteLine(exc.Message);
+                    connection.Close();
+
+                    throw;
+                }
+            },
+            TaskCreationOptions.LongRunning);
+
+            task.RunSynchronously();
+
+            return dt;
+        }
+
         private void Execute_SQL_Query(string query, string result_field)
         {
             string _query = query;

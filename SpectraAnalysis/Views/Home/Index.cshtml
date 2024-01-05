@@ -22,14 +22,27 @@
 
 </div>
 
-<div id="analysisWindow" style="display: block; padding: 0.5rem;">
-    <div class="inline">
-        <p>1. Smoothing by Wavelet Haar</p>
-        <label for="numOfIterations">Appoint number of iterations</label>
-        <input id="numOfIterations" type="text" onmouseout="smoothAbilityControl(event)"/>
-        <button id="smoothByWaveletHaar" disabled onclick="startWaveletSmoothing()">Start</button>
+<div id="analysisWindow" style="display: block;">
+    <div class="analysisStep">
+        <div class="inline">
+            <p>1. Smoothing by Wavelet Haar</p>
+            <label for="numOfIterations">Appoint number of iterations</label>
+            <input id="numOfIterations" type="text" onmouseout="stepAbilityControl(event)" style="width: 25%"/>
+            <button id="smoothByWaveletHaar" class="startStep" disabled onclick="startWaveletSmoothing()">Start</button>
+        </div>
+        <div class="inline">
+            <p id="responceWaveletSmoothing" class="stepResponces"></p>
+        </div>
     </div>
-    <div class="inline">
-        <p id="responceWaveletSmoothing" class="stepResponces"></p>
+    <div class="analysisStep">
+        <div class="inline">
+            <p>2. Baseline correction by Iterative Averaging</p>
+            <label for="threshold">Appoint threshold</label>
+            <input id="threshold" type="text" onmouseout="stepAbilityControl(event)" />
+            <button class="startStep" disabled onclick="startBaselineCorrection()">Start</button>
+        </div>
+        <div class="inline">
+            <p id="responceIABaseline" class="stepResponces"></p>
+        </div>
     </div>
 </div>

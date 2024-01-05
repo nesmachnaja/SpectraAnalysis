@@ -14,7 +14,8 @@ namespace SpectraAnalysis.Controllers
     {
         HomeModel model = new HomeModel();
         cl_Tasks task;
-        Guid uid = Guid.Parse("2D008327-BDBB-4415-A0F2-10021792328E");
+        //Guid param.spectra_id = Guid.Parse("2D008327-BDBB-4415-A0F2-10021792328E");
+        cl_Spectra_Analysis_Parameters param;
 
         public IActionResult Index()
         {
@@ -27,6 +28,8 @@ namespace SpectraAnalysis.Controllers
             //for (int k = 0; k < Request.Form.Files.Count; k++)
             //{
 
+            param = new cl_Spectra_Analysis_Parameters();
+            
             if (Request.Form.Files.Count > 0)
             {
                 try
@@ -66,11 +69,11 @@ namespace SpectraAnalysis.Controllers
                                 raw_spectra.Columns.Add("column" + i.ToString(), typeof(decimal));
                             }
 
-                            uid = Guid.NewGuid();
+                            param.spectra_id = Guid.NewGuid();
 
                             DataRow row_los = list_of_spectrum.NewRow();
                             row_los[0] = DateTime.Now;
-                            row_los[1] = uid;
+                            row_los[1] = param.spectra_id;
                             row_los[2] = Request.Form["spectraName"].ToString();
 
                             list_of_spectrum.Rows.Add(row_los);
@@ -81,7 +84,7 @@ namespace SpectraAnalysis.Controllers
                             {
                                 DataRow row = raw_spectra.NewRow();
 
-                                row[0] = uid;
+                                row[0] = param.spectra_id;
                                 row[1] = Convert.ToInt32(sheet.Cells[i, 1].Value);
 
                                 for (int j = 2; j < row.ItemArray.Length; j++)
@@ -120,9 +123,34 @@ namespace SpectraAnalysis.Controllers
         [HttpPost]
         public IActionResult SmoothingByWaveletHaar()
         {
+            param.num_of_iterations = int.Parse(Request.Form["numOfIterations"]);
             try
             {
-                task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Smoothing_by_wavelet_haar @spectra_id = '" + uid + "', @num_of_iterations = " + Request.Form["numOfIterations"]);
+                task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Smoothing_by_wavelet_haar @spectra_id = '" + param.spectra_id + "', @num_of_iterations = " + param.num_of_iterations.ToString());
+                return Json(new { message = "success" });
+            }
+            catch (Exception exc)
+            {
+                return Json(new { message = exc.Message.ToString() });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult BaselineCorrection()
+        {
+            try
+            {
+                cl_Spectra_Analysis_Parameters param = new cl_Spectra_Analysis_Parameters();
+                //param.spectra_id = param.spectra_id;
+                //param.num_of_iterations = 3;
+                param.threshold = double.Parse(Request.Form["threshold"].ToString().Replace(".",","));
+
+                IterativeAverageController iacontroller = new IterativeAverageController();
+                iacontroller.ReadData(param);
+                iacontroller.AnalyzeCurrentDataSet();
+                iacontroller.SetResults();
+
+                //task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Smoothing_by_wavelet_haar @spectra_id = '" + param.spectra_id + "', @num_of_iterations = " + Request.Form["numOfIterations"]);
                 return Json(new { message = "success" });
             }
             catch (Exception exc)
