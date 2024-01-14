@@ -162,12 +162,13 @@ namespace SpectraAnalysis.Controllers
                 }
         }
 
-        public void SetResults()
+        public Guid SetResults()
         {
             string query = "insert into MEPhI_disser.dbo.List_of_baselines (spectra_id,baseline_id,baseline_dt,method,threshold) values ('" + spectra_id.ToUpper() + "','" + baseline_id.ToString().ToUpper() + "','" + DateTime.Now.ToString("yyyy-MM-dd hh:mm:ss") + "','Iterative average'," + threshold.ToString().Replace(",", ".") + ")";
             task = new cl_Tasks(query);
             task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Baselines_data @Baselines_data = ", model.Baselines_3d);
             task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Baseline_correction @spectra_id = '" + spectra_id.ToString() + "', @baseline_id = '" + baseline_id.ToString() + "', @num_of_iterations = " + num_of_iterations.ToString());
+            return baseline_id;
         }
     }
 }

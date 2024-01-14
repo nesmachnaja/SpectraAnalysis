@@ -14,6 +14,7 @@ $(document).ready(function () {
 
 function sendFile(fileInput) {
     var responce = document.getElementById("responce");
+    var spectraId = document.getElementById("spectraId");
     var formDataFile = new FormData();
     formDataFile.append("file", fileInput.files[0]);
     formDataFile.append("spectraName", document.getElementById("spectraName").value);
@@ -25,8 +26,9 @@ function sendFile(fileInput) {
         var responceMsg = JSON.parse(xhr.responseText);
         if (xhr.status === 200) {
             responce.innerHTML = responceMsg.message;
+            spectraId.innerHTML = responceMsg.spectra_id;
             responce.dispatchEvent(new Event("change"));
-            //analysisVisibilityControl();
+            analysisVisibilityControl();
         }
         else {
             responce.innerHTML = "Uploading failed. Status: ", responceMsg.message;
@@ -65,6 +67,7 @@ function startWaveletSmoothing() {
     var numOfIterations = document.getElementById("numOfIterations");
     var formData = new FormData();
     formData.append("numOfIterations", numOfIterations.value);
+    formData.append("spectraId", document.getElementById("spectraId").innerHTML);
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/Home/SmoothingByWaveletHaar");
@@ -89,6 +92,8 @@ function startBaselineCorrection() {
     var threshold = document.getElementById("threshold");
     var formData = new FormData();
     formData.append("threshold", threshold.value);
+    formData.append("numOfIterations", document.getElementById("numOfIterations").value);
+    formData.append("spectraId", document.getElementById("spectraId").innerHTML);
 
     var xhr = new XMLHttpRequest();
     xhr.open("POST", "/Home/BaselineCorrection");
@@ -96,14 +101,92 @@ function startBaselineCorrection() {
     xhr.onload = function () {
         var responceMsg = JSON.parse(xhr.responseText);
         if (xhr.status === 200) {
+            document.getElementById("baselineId").innerHTML = responceMsg.baseline_id;
             responceIABaseline.innerHTML = responceMsg.message;
             responceIABaseline.dispatchEvent(new Event("change"));
         }
         else {
+            document.getElementById("baselineId").innerHTML = responceMsg.baseline_id;
             responceIABaseline.innerHTML = "Status: ", responceMsg.message;
             responceIABaseline.dispatchEvent(new Event("change"));
         }
     };
 
     xhr.send(formData);
+}
+
+function simulationStart(event) {
+    //var analysisWindow = document.getElementById("analysisWindow");
+    //var currentAnalysisStep = event.target.parentElement.parentElement;
+    //var analysisSteps = Array.from(analysisWindow.children);
+
+    //var currentStepNum = analysisSteps.indexOf(currentAnalysisStep);
+    //var currentStepNum = analysisWindow.children.indexOf(currentAnalysisStep);
+
+    var formData = new FormData();
+    formData.append("baselineId", document.getElementById("baselineId").innerHTML);
+    formData.append("threshold", document.getElementById("threshold").value);
+    formData.append("numOfIterations", document.getElementById("numOfIterations").value);
+    formData.append("spectraId", document.getElementById("spectraId").innerHTML);
+
+    var responceSimulation = document.getElementById("responceSimulation");
+    var responceDenoising = document.getElementById("responceDenoising");
+
+    if (event.target.innerHTML === "success") {
+        responceSimulation.innerHTML = "started";
+        responceDenoising.innerHTML = "started";
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/Home/SimulateAndDenoise");
+        xhr.onload = function () {
+            var responceMsg = JSON.parse(xhr.responseText);
+            if (xhr.status === 200) {
+                responceSimulation.innerHTML = responceMsg.message;
+                responceSimulation.dispatchEvent(new Event("change"));
+                responceDenoising.innerHTML = responceMsg.message;
+                responceDenoising.dispatchEvent(new Event("change"));
+
+                if (responceMsg.message === "success")
+                    responcePeakDetection.innerHTML = "started";
+            }
+            else {
+                responceSimulation.innerHTML = "Status: ", responceMsg.message;
+                responceSimulation.dispatchEvent(new Event("change"));
+                responceDenoising.innerHTML = "Status: ", responceMsg.message;
+                responceDenoising.dispatchEvent(new Event("change"));
+            }
+        };
+
+        xhr.send(formData);
+    }
+}
+
+function peakDetectionStart(event) {
+    var formData = new FormData();
+    formData.append("baselineId", document.getElementById("baselineId").innerHTML);
+    formData.append("threshold", document.getElementById("threshold").value);
+    formData.append("numOfIterations", document.getElementById("numOfIterations").value);
+    formData.append("spectraId", document.getElementById("spectraId").innerHTML);
+
+    var responcePeakDetection = document.getElementById("responcePeakDetection");
+
+    if (event.target.innerHTML === "success") {
+        responcePeakDetection.innerHTML = "started";
+
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "/Home/DetectPeaks");
+        xhr.onload = function () {
+            var responceMsg = JSON.parse(xhr.responseText);
+            if (xhr.status === 200) {
+                responcePeakDetection.innerHTML = responceMsg.message;
+                responcePeakDetection.dispatchEvent(new Event("change"));
+            }
+            else {
+                responcePeakDetection.innerHTML = "Status: ", responceMsg.message;
+                responcePeakDetection.dispatchEvent(new Event("change"));
+            }
+        };
+
+        xhr.send(formData);
+    }
 }

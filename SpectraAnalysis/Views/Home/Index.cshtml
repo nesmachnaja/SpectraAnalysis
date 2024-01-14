@@ -19,6 +19,9 @@
     <button id="uploadFile" style="display: inline-block;" disabled>OK</button>
 
     <p id="responce" style="margin-top: 0.7rem;" onchange="analysisVisibilityControl(event)"></p>
+    @*<p id="spectraId" style="margin-top: 0.7rem; display: none">4DAF2A13-E1AB-4049-B9C7-76137B2DDB90</p> @*to comment*@*@
+    <p id="spectraId" style="margin-top: 0.7rem; display: none"></p>
+    <p id="baselineId" style="margin-top: 0.7rem; display: none"></p>
 
 </div>
 
@@ -42,7 +45,31 @@
             <button class="startStep" disabled onclick="startBaselineCorrection()">Start</button>
         </div>
         <div class="inline">
-            <p id="responceIABaseline" class="stepResponces"></p>
+            <p id="responceIABaseline" class="stepResponces" onchange="simulationStart(event)"></p>
+        </div>
+    </div>
+    <div class="analysisStep">
+        <div class="inline">
+            <p>3. Simulating of absent data</p>
+        </div>
+        <div class="inline">
+            <p id="responceSimulation" class="stepResponces"></p>
+        </div>
+    </div>
+    <div class="analysisStep">
+        <div class="inline">
+            <p>4. Denoising</p>
+        </div>
+        <div class="inline">
+            <p id="responceDenoising" class="stepResponces" onchange="peakDetectionStart(event)"></p>
+        </div>
+    </div>
+    <div class="analysisStep">
+        <div class="inline">
+            <p>5. Peak detection</p>
+        </div>
+        <div class="inline">
+            <p id="responcePeakDetection" class="stepResponces"></p>
         </div>
     </div>
 </div>

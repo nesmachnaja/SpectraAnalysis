@@ -15,7 +15,7 @@ namespace SpectraAnalysis.Controllers
         HomeModel model = new HomeModel();
         cl_Tasks task;
         //Guid param.spectra_id = Guid.Parse("2D008327-BDBB-4415-A0F2-10021792328E");
-        cl_Spectra_Analysis_Parameters param;
+        cl_Spectra_Analysis_Parameters param = new cl_Spectra_Analysis_Parameters();
 
         public IActionResult Index()
         {
@@ -28,7 +28,7 @@ namespace SpectraAnalysis.Controllers
             //for (int k = 0; k < Request.Form.Files.Count; k++)
             //{
 
-            param = new cl_Spectra_Analysis_Parameters();
+            //param = new cl_Spectra_Analysis_Parameters();
             
             if (Request.Form.Files.Count > 0)
             {
@@ -38,7 +38,7 @@ namespace SpectraAnalysis.Controllers
                     DataTable list_of_spectrum = new DataTable();
 
                     var file = Request.Form.Files[0];
-                    //string fileName = file.FileName;
+                    string fileName = file.FileName;
                     //string mimeType = file.ContentType;
 
                     string directory = Directory.GetCurrentDirectory();
@@ -63,6 +63,7 @@ namespace SpectraAnalysis.Controllers
                             list_of_spectrum.Columns.Add("spectra_dt", typeof(DateTime));
                             list_of_spectrum.Columns.Add("spectra_id", typeof(Guid));
                             list_of_spectrum.Columns.Add("spectra_name", typeof(string));
+                            list_of_spectrum.Columns.Add("file_name", typeof(string));
 
                             for (int i = 1; i < 450; i += 2)
                             {
@@ -75,6 +76,7 @@ namespace SpectraAnalysis.Controllers
                             row_los[0] = DateTime.Now;
                             row_los[1] = param.spectra_id;
                             row_los[2] = Request.Form["spectraName"].ToString();
+                            row_los[3] = fileName;
 
                             list_of_spectrum.Rows.Add(row_los);
                             list_of_spectrum.AcceptChanges();
@@ -101,7 +103,7 @@ namespace SpectraAnalysis.Controllers
                     {
                         task = new cl_Tasks("exec MEPhI_disser.dbo.sp_List_of_spectrum @List_of_spectrum = ", list_of_spectrum);
                         task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Raw_data @Raw_data = ", raw_spectra);
-                        return Json(new { message = "success" });
+                        return Json(new { message = "success", spectra_id = param.spectra_id.ToString() });
                     }
                     catch (Exception exc)
                     {
@@ -123,7 +125,9 @@ namespace SpectraAnalysis.Controllers
         [HttpPost]
         public IActionResult SmoothingByWaveletHaar()
         {
+            //param = new cl_Spectra_Analysis_Parameters();
             param.num_of_iterations = int.Parse(Request.Form["numOfIterations"]);
+            param.spectra_id = Guid.Parse(Request.Form["spectraId"]);
             try
             {
                 task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Smoothing_by_wavelet_haar @spectra_id = '" + param.spectra_id + "', @num_of_iterations = " + param.num_of_iterations.ToString());
@@ -138,19 +142,59 @@ namespace SpectraAnalysis.Controllers
         [HttpPost]
         public IActionResult BaselineCorrection()
         {
+            //return Json(new { message = "success", baseline_id = "E6C7F7D4-EB27-4F5D-B46E-6CEBE87E9560" }); //to comment
+            
             try
             {
-                cl_Spectra_Analysis_Parameters param = new cl_Spectra_Analysis_Parameters();
-                //param.spectra_id = param.spectra_id;
-                //param.num_of_iterations = 3;
+                param.num_of_iterations = int.Parse(Request.Form["numOfIterations"]);
+                param.spectra_id = Guid.Parse(Request.Form["spectraId"]);
                 param.threshold = double.Parse(Request.Form["threshold"].ToString().Replace(".",","));
 
                 IterativeAverageController iacontroller = new IterativeAverageController();
                 iacontroller.ReadData(param);
                 iacontroller.AnalyzeCurrentDataSet();
-                iacontroller.SetResults();
+                param.baseline_id = iacontroller.SetResults();
 
                 //task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Smoothing_by_wavelet_haar @spectra_id = '" + param.spectra_id + "', @num_of_iterations = " + Request.Form["numOfIterations"]);
+                return Json(new { message = "success", baseline_id = param.baseline_id });
+            }
+            catch (Exception exc)
+            {
+                return Json(new { message = exc.Message.ToString() });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult SimulateAndDenoise()
+        {
+            param.num_of_iterations = int.Parse(Request.Form["numOfIterations"]);
+            param.spectra_id = Guid.Parse(Request.Form["spectraId"]);
+            param.baseline_id = Guid.Parse(Request.Form["baselineId"]);
+            param.threshold = double.Parse(Request.Form["threshold"].ToString().Replace(".", ","));
+
+            try
+            {
+                task = new cl_Tasks("exec MEPhI_disser.dbo.sp_Peak_detection @spectra_id = '" + param.spectra_id + "', @baseline_id = '" + param.baseline_id.ToString() + "';" +
+                    " exec MEPhI_disser.dbo.sp_Peak_2d_area_calculation @baseline_id = '" + param.baseline_id.ToString() + "'");
+                return Json(new { message = "success" });
+            }
+            catch (Exception exc)
+            {
+                return Json(new { message = exc.Message.ToString() });
+            }
+        }
+
+        [HttpPost]
+        public IActionResult DetectPeaks()
+        {
+            param.num_of_iterations = int.Parse(Request.Form["numOfIterations"]);
+            param.spectra_id = Guid.Parse(Request.Form["spectraId"]);
+            param.baseline_id = Guid.Parse(Request.Form["baselineId"]);
+            param.threshold = double.Parse(Request.Form["threshold"].ToString().Replace(".", ","));
+
+            try
+            {
+                cl_Peak_3d_determination peak_3d = new cl_Peak_3d_determination(param.baseline_id);
                 return Json(new { message = "success" });
             }
             catch (Exception exc)
