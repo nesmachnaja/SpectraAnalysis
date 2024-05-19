@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 using OfficeOpenXml;
 using SpectraAnalysis.Models;
 using System.ComponentModel;
@@ -29,7 +30,7 @@ namespace SpectraAnalysis.Controllers
             //{
 
             //param = new cl_Spectra_Analysis_Parameters();
-            
+
             if (Request.Form.Files.Count > 0)
             {
                 try
@@ -143,12 +144,12 @@ namespace SpectraAnalysis.Controllers
         public IActionResult BaselineCorrection()
         {
             //return Json(new { message = "success", baseline_id = "E6C7F7D4-EB27-4F5D-B46E-6CEBE87E9560" }); //to comment
-            
+
             try
             {
                 param.num_of_iterations = int.Parse(Request.Form["numOfIterations"]);
                 param.spectra_id = Guid.Parse(Request.Form["spectraId"]);
-                param.threshold = double.Parse(Request.Form["threshold"].ToString().Replace(".",","));
+                param.threshold = double.Parse(Request.Form["threshold"].ToString().Replace(".", ","));
 
                 IterativeAverageController iacontroller = new IterativeAverageController();
                 iacontroller.ReadData(param);
@@ -201,6 +202,37 @@ namespace SpectraAnalysis.Controllers
             {
                 return Json(new { message = exc.Message.ToString() });
             }
+        }
+
+        [HttpGet]
+        public IActionResult VisualizeSpectra()
+        {
+            Guid baseline_id = Guid.Parse("E6C7F7D4-EB27-4F5D-B46E-6CEBE87E9560");
+            cl_Visualization visualization = new cl_Visualization(baseline_id);
+
+            decimal max_peak_height = visualization.GetMaxPeakHeight(baseline_id);
+
+            VisualizationModel response = new VisualizationModel
+            {
+                baseline_correction_data = Json(JsonConvert.SerializeObject(visualization.baseline_correction_data, Formatting.None,
+                        new JsonSerializerSettings()
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        })),
+                max_peak_height = Json(JsonConvert.SerializeObject(max_peak_height, Formatting.None,
+                        new JsonSerializerSettings()
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        }))
+            };
+
+            return Ok(response);
+
+            /*return Json(JsonConvert.SerializeObject(visualization.baseline_correction_data, Formatting.None,
+                        new JsonSerializerSettings()
+                        {
+                            ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                        }));*/
         }
 
     }

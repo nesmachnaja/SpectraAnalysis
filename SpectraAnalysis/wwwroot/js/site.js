@@ -190,3 +190,127 @@ function peakDetectionStart(event) {
         xhr.send(formData);
     }
 }
+
+
+$(document).ready(function () {
+
+    $.ajax({
+        url: "/Home/VisualizeSpectra",
+        type: "GET",
+        dataType: "json",
+        success: function (response) {
+            var baseline_correction_data = JSON.parse(response.baseline_correction_data.value);
+            var max_peak_height = Number(response.max_peak_height.value);
+
+            response = null;
+
+            var rCoeff = 255 / (max_peak_height / 1000);
+            var gbCoeff = 255 / (max_peak_height / 100);
+            var maxRed = Math.floor(max_peak_height / 100);
+
+            var canvas = document.getElementById("myCanvas");
+            var ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = true;
+
+            canvas.height = baseline_correction_data.length * 0.2;
+            canvas.width = baseline_correction_data[0].length;
+
+            for (var i = 0; i < baseline_correction_data.length; i++) {
+                for (var j = 0; j < baseline_correction_data[i].length; j++) {
+                    var x = j;
+                    var y = i * 0.2; // Math.floor(i / width);
+
+                    //var a = Math.floor(baseline_correction_data[i][j] * 100000 % 1000);
+
+                    /*var color = `rgb(${Math.floor(1 / 3.91 /*for conversion to an eight-bit representation/ * (baseline_correction_data[i][j] * 10000 / 100000))}, 
+                                     ${Math.floor(1 / 3.91 /*for conversion to an eight-bit representation/ * (baseline_correction_data[i][j] * 100 % 1000))}, 
+                                     ${Math.floor(1 / 3.91 /*for conversion to an eight-bit representation/ * (baseline_correction_data[i][j] * 100000 % 1000))})`;*/
+
+
+                    /*var color = `rgb(${Math.floor(baseline_correction_data[i][j] / 1000 * 28.33)}, 
+                                     ${baseline_correction_data[i][j] > 999 ? Math.floor((baseline_correction_data[i][j] / 100) * 2.57) : Math.floor(Math.floor(baseline_correction_data[i][j] / 10) % 100 * 2.57)}, 
+                                     ${baseline_correction_data[i][j] > 999 ? Math.floor((99 - baseline_correction_data[i][j] / 100) * 2.57) : Math.floor((baseline_correction_data[i][j] * 100 % 1000) / 3.91)})`;*/
+
+                    var color = `rgb(${Math.floor(baseline_correction_data[i][j] / 1000 * rCoeff)}, 
+                                     ${
+                                     //baseline_correction_data[i][j] <= 999 ? 
+                                     //Math.floor(Math.floor(baseline_correction_data[i][j] / 10) % 100 * 2.57) :
+                                     Math.floor((baseline_correction_data[i][j] / 100) * gbCoeff) > Math.floor(Math.floor(baseline_correction_data[i][j] / 10) % 100 * 2.57) ?
+                                     Math.floor((baseline_correction_data[i][j] / 100) * gbCoeff) :
+                                     Math.floor(Math.floor(baseline_correction_data[i][j] / 10) % 100 * 2.57)}, 
+                                     ${//baseline_correction_data[i][j] <= 999 ||
+                                     Math.floor((maxRed - baseline_correction_data[i][j] / 100) * gbCoeff) > Math.floor((baseline_correction_data[i][j] * 100 % 1000) / 3.91) ?
+                                     Math.floor((baseline_correction_data[i][j] * 100 % 1000) / 3.91) :
+                                     Math.floor((maxRed - baseline_correction_data[i][j] / 100) * gbCoeff)})`;
+
+                    ctx.fillStyle = color;
+                    ctx.fillRect(x, y, 1, 1);
+                }
+            }
+
+            //canvas.transform(1, 0, 0, 0.2, 0, 0);
+            //ctx.scale(1, 0.2);
+        },
+        error: function (xhr, status, error) {
+        }
+    });
+
+    //function visualizeSpectra() {
+    /*var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+
+    var width = 12;
+    var height = 12;
+
+    var rgbData = [
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255],
+        [255, 0, 0],
+        [0, 255, 0],
+        [0, 0, 255]
+    ];
+
+    for (var i = 0; i < rgbData.length; i++) {
+        var x = i % width;
+        var y = Math.floor(i / width);
+
+        var color = `rgb(${rgbData[i][0]}, ${rgbData[i][1]}, ${rgbData[i][2]})`;
+
+        ctx.fillStyle = color;
+        ctx.fillRect(x, y, 1, 1);
+    }*/
+});
